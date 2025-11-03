@@ -1,0 +1,1 @@
+void extended_tests() {}

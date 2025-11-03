@@ -1,5 +1,6 @@
 #include "btree.h"
 #include "btree_delete.cpp"
+#include "extended_tests.cpp"
 #include <cassert>
 #include <iterator>
 
@@ -201,6 +202,8 @@ int main() {
 
   std::cout << "\nPassed a total of " << all_passed << "/" << all_total
             << " tests." << std::endl;
+
+  extended_tests();
 
   return 0;
 }
