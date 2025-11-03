@@ -1,4 +1,5 @@
 #include "btree.h"
+#include "btree_delete.cpp"
 #include <cassert>
 #include <iterator>
 

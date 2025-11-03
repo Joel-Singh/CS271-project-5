@@ -4,6 +4,9 @@
 #include <string>
 #include <vector>
 
+#ifndef BTREE
+#define BTREE
+
 struct Node {
   int *keys;
   Node **c;
@@ -41,3 +44,6 @@ public:
 
   void remove(int k);
 };
+
+#include "btree.cpp"
+#endif
