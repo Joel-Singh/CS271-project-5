@@ -21,6 +21,14 @@ struct Node {
 
 class BTree {
 private:
+public:
+  BTree(const std::string &filename);
+  // For debugging
+  void print();
+
+  void remove(int k);
+
+  // All below are private members made public for the purposes of testing. Should be changed back to private for final testing
   Node *root;
   int t; // minimum degree
   // Build tree from file
@@ -36,13 +44,6 @@ private:
   void merge_right(Node *x, Node *y, int k);
   void swap_left(Node *x, Node *y, Node *z, int i);
   void swap_right(Node *x, Node *y, Node *z, int i);
-
-public:
-  BTree(const std::string &filename);
-  // For debugging
-  void print();
-
-  void remove(int k);
 };
 
 #include "btree.cpp"
