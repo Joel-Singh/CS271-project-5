@@ -57,8 +57,59 @@ void test_min_key() {
   }
 }
 
+void test_remove_leaf_key() {
+  BTree tree; // Creating a tree just to call remove_leaf_key
+  {
+    Node* node = new Node(2, true);
+
+    node->n = 1;
+    node->keys[0] = 5;
+
+    tree.remove_leaf_key(node, 0);
+
+    test("Removing from single key node makes it empty", node->n, 0);
+  }
+
+  {
+    Node* node = new Node(2, true);
+    node->n = 3;
+    node->keys[0] = 1;
+    node->keys[1] = 2;
+    node->keys[2] = 3;
+
+    tree.remove_leaf_key(node, 1);
+
+    test("Removing from leaf node in the middle shifts keys", array_to_string(node->keys, node->n), "1 3");
+  }
+
+  {
+    Node* node = new Node(2, true);
+    node->n = 3;
+    node->keys[0] = 1;
+    node->keys[1] = 2;
+    node->keys[2] = 3;
+
+    tree.remove_leaf_key(node, 0);
+
+    test("Removing from leaf node at beginning shifts keys", array_to_string(node->keys, node->n), "2 3");
+  }
+
+  {
+    Node* node = new Node(2, true);
+    node->n = 3;
+    node->keys[0] = 1;
+    node->keys[1] = 2;
+    node->keys[2] = 3;
+
+    tree.remove_leaf_key(node, 2);
+
+    test("Removing from leaf node at end shifts keys", array_to_string(node->keys, node->n), "1 2");
+  }
+}
+
 void extended_tests() {
   test_max_key();
   test_find_k();
   test_min_key();
+  test_remove_leaf_key();
 }

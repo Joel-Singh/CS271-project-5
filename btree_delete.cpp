@@ -1,4 +1,5 @@
 #include "btree.h"
+#include <cassert>
 
 using namespace std;
 
@@ -33,7 +34,20 @@ int BTree::find_k(Node *x, int k) {
 }
 
 // remove the key at index i from a btree leaf node x
-void BTree::remove_leaf_key(Node *x, int i) {}
+// What to do if the indice is invalid? Currently just asserting
+void BTree::remove_leaf_key(Node *x, int i) {
+  assert(x != nullptr);
+  assert(x->leaf == true);
+
+  bool i_is_valid = i >= 0 && i < x->n ;
+  assert(i_is_valid);
+
+  for (int j = i; j < (x->n - 1); j++) {
+    x->keys[j] = x->keys[j+1];
+  }
+
+  x->n--;
+}
 
 // remove the key at index i and child at index j from a btree internal node x
 void BTree::remove_internal_key(Node *x, int i, int j) {}
