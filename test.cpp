@@ -1,4 +1,6 @@
 #include <iostream>
+#include "btree.h"
+#include "btree_helper_functions.cpp"
 
 using namespace std;
 
@@ -32,6 +34,8 @@ template <typename T> static string stringify(const T &value) {
     return std::to_string(value);
   } else if constexpr (std::is_same_v<T, std::string>) {
     return value;
+  } else if constexpr (std::is_same_v<T, BTree>) {
+    return tree_str(value);
   } else {
     return value.to_string();
   }
