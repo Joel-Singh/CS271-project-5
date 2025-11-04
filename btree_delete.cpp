@@ -1,5 +1,9 @@
 #include "btree.h"
 
+using namespace std;
+
+const int DEFAULT_KEY = 0;
+
 /*
 NOTE: Please follow logic from CLRSv4 directly. Additionally, in cases 3a and 3b
 please check for an immediate right sibling first.
@@ -35,7 +39,22 @@ void BTree::remove_leaf_key(Node *x, int i) {}
 void BTree::remove_internal_key(Node *x, int i, int j) {}
 
 // return the max key in the btree rooted at node x
-int BTree::max_key(Node *x) { return 0; }
+int BTree::max_key(Node *x) { 
+  if (x == nullptr) {
+    return DEFAULT_KEY;
+  }
+
+  if (x->leaf) {
+    return x->keys[x->n - 1];
+  } else {
+    int rightmost_child = t*2 - 1;
+    while (x->c[rightmost_child] == nullptr) {
+      rightmost_child--;
+    }
+
+    return max_key(x->c[rightmost_child]);
+  }
+}
 
 // return the min key in the btree rooted at node x
 int BTree::min_key(Node *x) { return 0; }
