@@ -57,7 +57,17 @@ int BTree::max_key(Node *x) {
 }
 
 // return the min key in the btree rooted at node x
-int BTree::min_key(Node *x) { return 0; }
+int BTree::min_key(Node *x) {
+  if (x == nullptr) {
+    return DEFAULT_KEY;
+  }
+
+  if (x->c[0] == nullptr) {
+    return x->keys[0];
+  } else {
+    return min_key(x->c[0]);
+  }
+}
 
 // merge key k and all keys and children from y into y's LEFT sibling x
 void BTree::merge_left(Node *x, Node *y, int k) {}

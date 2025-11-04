@@ -33,7 +33,32 @@ void test_find_k() {
   test("empty tree returns 0", tree.find_k(tree.root, 8), 0);
 }
 
+
+void test_min_key() {
+  {
+    BTree tree;
+    test("empty min_key returns 0", tree.min_key(tree.root), 0);
+  }
+
+  {
+    BTree tree = build_tree("./tests/extended_tests/single_value.txt");
+    test("min_key on single value tree", tree.min_key(tree.root), 5);
+
+  }
+
+  {
+    BTree tree = build_tree("./tests/test_3a.txt");
+    test("min_key on multiple node tree", tree.min_key(tree.root), 3);
+  }
+
+  {
+    BTree tree = build_tree("./tests/test_2b.txt");
+    test("min_key on multiple node tree", tree.min_key(tree.root), 5);
+  }
+}
+
 void extended_tests() {
   test_max_key();
   test_find_k();
+  test_min_key();
 }
