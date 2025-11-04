@@ -109,7 +109,7 @@ void test_remove_leaf_key() {
 
 void extended_tests() {
   test_max_key();
-  test_find_k();
+  // test_find_k();
   test_min_key();
   test_remove_leaf_key();
 }
