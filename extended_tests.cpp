@@ -8,7 +8,7 @@ using namespace std;
 const string test_path = "./tests/extended_tests/";
 
 void test_max_key() {
-  BTree tree = build_tree(test_path + "empty_tree.txt");
+  BTree tree;
   test("empty max_key returns 0", tree.max_key(tree.root), 0);
 }
 

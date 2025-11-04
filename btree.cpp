@@ -20,6 +20,9 @@ BTree::BTree(const std::string &filename) : root(nullptr), t(0) {
   }
 }
 
+BTree::BTree() : root(nullptr), t(0) {}
+
+
 // Build tree from file
 bool BTree::build_tree(const std::string &filename) {
   std::ifstream in(filename);

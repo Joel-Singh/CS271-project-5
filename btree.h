@@ -23,6 +23,7 @@ class BTree {
 private:
 public:
   BTree(const std::string &filename);
+  BTree();
   // For debugging
   void print();
 
