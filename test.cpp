@@ -14,7 +14,7 @@ using namespace std;
 // Parameters:
 //  value: value to convert
 //=================================================
-template <typename T> static string stringify(const T &value) {
+template <typename T> static string stringify(T &value) {
   if constexpr (std::is_same_v<T, bool>) {
     if (value) {
       return "true";
@@ -64,13 +64,13 @@ template <typename T> static string stringify(const T &value) {
 //  actual: The actual value
 //  expected: What you expect `actual` value is
 //=================================================
-template <typename T>
-void test(std::string description, const T &actual, std::string expected) {
+template <typename T, typename D>
+void test(std::string description, T actual, const D expected) {
   cout << "Testing `" << description << "`" << endl;
 
-  if (stringify(actual) != expected) {
+  if (stringify(actual) != stringify(expected)) {
     cout << "FAILED" << endl;
-    cout << "Expected: `" << expected << "`" << endl;
+    cout << "Expected: `" << stringify(expected) << "`" << endl;
     cout << "Actual: `" << stringify(actual) << "`" << endl;
 
   } else {
