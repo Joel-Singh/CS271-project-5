@@ -97,10 +97,10 @@ template <typename T> static string array_to_string(T *A, int len) {
   if (len == 0) {
     return "";
   } else {
-    string str = to_string(A[0]);
+    string str = stringify(A[0]);
 
     for (int i = 1; i < len; i++) {
-      str += (" " + to_string(A[i]));
+      str += (" " + stringify(A[i]));
     }
 
     return str;
