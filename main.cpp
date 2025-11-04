@@ -190,6 +190,8 @@ void test_3b(int &correct, int &total) {
 }
 
 int main() {
+
+  #ifndef EXTENDED_TESTS_ONLY
   int all_passed = 0;
   int all_total = 0;
 
@@ -199,6 +201,7 @@ int main() {
   test_2c(all_passed, all_total);
   test_3a(all_passed, all_total);
   test_3b(all_passed, all_total);
+  #endif
 
   std::cout << "\nPassed a total of " << all_passed << "/" << all_total
             << " tests." << std::endl;

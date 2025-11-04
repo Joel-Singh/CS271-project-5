@@ -9,3 +9,7 @@ debug: btree.cpp btree_delete.cpp btree.h main.cpp
 sanitized: btree.cpp btree_delete.cpp btree.h main.cpp
 	# Adds sanitization checks, making sure we don't have any memory leaks.
 	mkdir -p output && g++ -g -fsanitize=address -o output/main main.cpp
+
+extended_tests_only: btree.cpp btree_delete.cpp btree.h main.cpp
+	# -D defines a macro variable
+	mkdir -p output && g++ -DEXTENDED_TESTS_ONLY -o output/main main.cpp
