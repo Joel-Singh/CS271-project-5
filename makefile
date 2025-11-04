@@ -13,3 +13,7 @@ sanitized: btree.cpp btree_delete.cpp btree.h main.cpp
 extended_tests_only: btree.cpp btree_delete.cpp btree.h main.cpp
 	# -D defines a macro variable
 	mkdir -p output && g++ -DEXTENDED_TESTS_ONLY -o output/main main.cpp
+
+watch: btree.cpp btree_delete.cpp btree.h main.cpp
+	# Automatically reruns extended tests when files change
+	mkdir -p output && ls *.cpp | entr -r -c sh -c "make -B extended_tests_only && ./output/main"
