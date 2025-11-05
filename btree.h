@@ -24,6 +24,7 @@ private:
 public:
   BTree(const std::string &filename);
   BTree();
+  ~BTree();
   // For debugging
   void print();
 

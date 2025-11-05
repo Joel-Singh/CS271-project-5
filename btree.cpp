@@ -1,5 +1,6 @@
 #include "btree.h"
 #include <queue>
+#include <cassert>
 
 Node::Node(int t, bool leaf) : t(t), leaf(leaf), n(0) {
   keys = new int[2 * t - 1];
@@ -21,6 +22,36 @@ BTree::BTree(const std::string &filename) : root(nullptr), t(0) {
 }
 
 BTree::BTree() : root(nullptr), t(0) {}
+
+//=================================================
+// recursive_destructor
+// Recursively deletes all nodes in the bst, traversing through all and then deleting in reverse order
+//
+// PARAMETERS:
+//  node: The subtree rooted at node to delete 
+//=================================================
+void recursive_destructor(Node* node) {
+  assert(node != nullptr);
+
+  for (int i = 0; i < node->n + 1; i++) {
+    Node* next_child = node->c[i];
+    if (next_child == nullptr) {
+      break;
+    } else {
+      recursive_destructor(next_child);
+    }
+  }
+
+  delete node;
+}
+
+BTree::~BTree() {
+  if (root == nullptr) {
+    return;
+  }
+
+  recursive_destructor(root);
+}
 
 
 // Build tree from file
