@@ -11,10 +11,30 @@ please check for an immediate right sibling first.
 */
 
 // delete the key k from the btree
-void BTree::remove(int k) {}
+void BTree::remove(int k) {
+  remove(root, k, true);
+}
 
 // delete the key k from the btree rooted at x
-void BTree::remove(Node *x, int k, bool x_root) {}
+void BTree::remove(Node *x, int k, bool x_root) {
+  if (x == nullptr) {
+    return;
+  }
+
+  if (x->leaf) {
+    for (int i = 0; i < x->n; i++) {
+      if (x->keys[i] == k) {
+        remove_leaf_key(x, i);
+        return;
+      }
+    }
+  } else {
+    for (int i = 0; i < x->n + 1; i++) {
+      assert(x->c[i] != nullptr);
+      remove(x->c[i], k);
+    }
+  }
+}
 
 // return the index i of the first key in the btree node x where k <= x.keys[i]
 // if i = x.n then no such key exists
