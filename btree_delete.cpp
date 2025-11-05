@@ -22,36 +22,71 @@ void BTree::remove(Node *x, int k, bool x_root) {
   }
 
   // Find the first index `k` is greater than or equal to
-  int precedes_k = 0;
+  int succeeds_k = 0;
   for (int i = 0; i < x->n; i++) {
     if (x->keys[i] >= k) {
-      precedes_k = i;
+      succeeds_k = i;
       break;
     }
   }
 
-  bool k_in_x = x->keys[precedes_k] == k;
+  bool k_in_x = x->keys[succeeds_k] == k;
   if (k_in_x) {
+    const int k_index = succeeds_k;
     if (x->leaf) { // Case 1: the search arrives at a leaf node x that contains k
-      remove_leaf_key(x, precedes_k);
+      remove_leaf_key(x, k_index);
     } else { // Case 2: The search arrives at an internal node x that contains k
 
-      bool left_has_t_keys = x->c[precedes_k]->n == t;
-      if (left_has_t_keys) { // Case 2a, x.c_i has at least t keys
-        int predecessor = max_key(x->c[precedes_k]);
+      Node* left = x->c[k_index];
+      Node* right = x->c[k_index + 1];
 
-        x->keys[precedes_k] = predecessor;
-        remove(x->c[precedes_k], predecessor);
+      bool left_has_t_keys = left->n == t;
+      bool left_has_t_minus_one_keys = left->n == t - 1;
+
+      bool right_has_t_keys = right->n == t;
+      bool right_has_t_minus_one_keys = right->n == t - 1;
+
+      if (left_has_t_keys) { // Case 2a, x.c_i has at least t keys
+        int predecessor = max_key(left);
+
+        x->keys[k_index] = predecessor;
+        remove(left, predecessor);
         return;
       }
 
-      bool left_has_t_minus_one_keys = x->c[precedes_k]->n == t - 1;
-      bool right_has_t_keys = x->c[precedes_k]->n == t - 1;
       if (left_has_t_minus_one_keys && right_has_t_keys) { // Case 2b
-        int successor = min_key(x->c[precedes_k+1]);
+        int successor = min_key(right);
 
-        x->keys[precedes_k] = successor;
-        remove(x->c[precedes_k+1], successor);
+        x->keys[k_index] = successor;
+        remove(right, successor);
+        return;
+      }
+
+      if (left_has_t_minus_one_keys && right_has_t_minus_one_keys) { // Case 2c
+
+        // left is going to get 2t - 1 keys
+        left->n = 2*t - 1;
+
+        // Merge k and all keys in right into left
+        left->keys[t - 1] = k;
+        for (int i = 0; i < t - 1; i++) {
+          left->keys[t + i] = right->keys[i];
+        }
+
+        // Remove k from x after merge
+        x->n--;
+        for (int i = k_index; k < x->n; i++) {
+          x->keys[i] = x->keys[i+1];
+        }
+
+        // Remove the pointer to right
+        delete right;
+        for (int i = k_index+1; k < (x->n+1); i++) {
+          x->c[i] = x->c[i+1];
+        }
+
+        // Can finally recursively delete k from left
+        remove(left, k);
         return;
       }
     }
