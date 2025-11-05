@@ -22,17 +22,28 @@ void BTree::remove(Node *x, int k, bool x_root) {
   }
 
   // Find the first index `k` is greater than or equal to
-  int first_greater_index = 0;
+  int precedes_k = 0;
   for (int i = 0; i < x->n; i++) {
     if (x->keys[i] >= k) {
-      first_greater_index = i;
+      precedes_k = i;
       break;
     }
   }
 
-  // Case 1, the search arrives at a leaf node x that contains k
-  if (x->keys[first_greater_index] == k && x->leaf) {
-    remove_leaf_key(x, first_greater_index);
+  bool k_in_x = x->keys[precedes_k] == k;
+  if (k_in_x) {
+    if (x->leaf) { // Case 1: the search arrives at a leaf node x that contains k
+      remove_leaf_key(x, precedes_k);
+    } else { // Case 2: The search arrives at an internal node x that contains k
+
+      bool left_has_t_keys = x->c[precedes_k]->n == t;
+      if (left_has_t_keys) { // Case 2a, x.c_i has at least t keys
+        int predecessor = max_key(x->c[precedes_k]);
+
+        x->keys[precedes_k] = predecessor;
+        remove(x->c[precedes_k], predecessor);
+      }
+    }
   }
 
   for (int i = 0; i < x->n + 1; i++) {
