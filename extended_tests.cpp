@@ -29,8 +29,8 @@ void test_max_key() {
 }
 
 void test_find_k() {
-  BTree tree;
-  test("empty tree returns 0", tree.find_k(tree.root, 8), 0);
+  BTree tree = build_tree("tests/test_4.txt");
+  test("tree returns 8", tree.find_k(tree.root, 8), 0);
 }
 
 

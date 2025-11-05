@@ -10,6 +10,8 @@ NOTE: Please follow logic from CLRSv4 directly. Additionally, in cases 3a and 3b
 please check for an immediate right sibling first.
 */
 
+using namespace std;
+
 // delete the key k from the btree
 void BTree::remove(int k) {
   remove(root, k, true);
@@ -101,17 +103,23 @@ void BTree::remove(Node *x, int k, bool x_root) {
 // if i = x.n then no such key exists
 int BTree::find_k(Node *x, int k) {    
     int i = 0;
+    
+    if (x == nullptr) {
+        return 0;
+    }
+
     while (i < x->n && k > x->keys[i]) {
         i++;
     }
 
+    cout << "sdfsf" << endl;    
     if (i <= x->n && k == x->keys[i]) {
         return (x, i);
     } else if (x->leaf) {
         return (x->n);
     } else {
-        return find_k(*x->c, k);
-    }    
+        return find_k(x->c[i], k);
+    }   
 }
 
 // remove the key at index i from a btree leaf node x
