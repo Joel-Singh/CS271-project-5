@@ -17,3 +17,7 @@ extended_tests_only: btree.cpp btree_delete.cpp btree.h main.cpp
 watch: btree.cpp btree_delete.cpp btree.h main.cpp
 	# Automatically reruns extended tests when files change
 	mkdir -p output && ls *.cpp | entr -r -c sh -c "make -B && ./output/main"
+
+watch-sanitized: btree.cpp btree_delete.cpp btree.h main.cpp
+	# Automatically reruns extended tests when files change
+	mkdir -p output && ls *.cpp | entr -r -c sh -c "make -B sanitized && ./output/main"
