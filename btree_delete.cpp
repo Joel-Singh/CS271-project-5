@@ -42,6 +42,17 @@ void BTree::remove(Node *x, int k, bool x_root) {
 
         x->keys[precedes_k] = predecessor;
         remove(x->c[precedes_k], predecessor);
+        return;
+      }
+
+      bool left_has_t_minus_one_keys = x->c[precedes_k]->n == t - 1;
+      bool right_has_t_keys = x->c[precedes_k]->n == t - 1;
+      if (left_has_t_minus_one_keys && right_has_t_keys) { // Case 2b
+        int successor = min_key(x->c[precedes_k+1]);
+
+        x->keys[precedes_k] = successor;
+        remove(x->c[precedes_k+1], successor);
+        return;
       }
     }
   }
