@@ -118,26 +118,7 @@ void BTree::remove(Node *x, int k, bool x_root) {
         if (sibling_with_t_keys == right_sibling) { // Case 3a right sibling has t keys
           swap_right(x, subtree_containing_k, right_sibling, succeeds_k);
         } else { // Case 3a left sibling has t keys
-          assert(sibling_with_t_keys == left_sibling);
-          subtree_containing_k->n++;
-
-          // Pushing 
-          for (int i = subtree_containing_k->n - 1; i > 0; i--) {
-            subtree_containing_k->keys[i] = subtree_containing_k->keys[i-1];
-          }
-
-          subtree_containing_k->keys[0] = x->keys[succeeds_k-1];
-
-          x->keys[succeeds_k - 1] = left_sibling->keys[left_sibling->n-1];
-
-          // Push the children of subtree up
-          for (int i = subtree_containing_k->n; i > 0; i--) {
-            subtree_containing_k->c[i] = subtree_containing_k->c[i-1];
-          }
-
-          subtree_containing_k->c[0] = left_sibling->c[left_sibling->n];
-
-          left_sibling->n--;
+          swap_left(x, subtree_containing_k, left_sibling, succeeds_k - 1);
         }
       } else { // Both siblings must have t-1 keys
       }
@@ -229,7 +210,43 @@ void BTree::merge_right(Node *x, Node *y, int k) {}
 // Move a key from y's LEFT sibling z up into x
 // Move appropriate child pointer from z into y
 // Let i be the index of the key dividing y and z in x
-void BTree::swap_left(Node *x, Node *y, Node *z, int i) {}
+void BTree::swap_left(Node *x, Node *y, Node *z, int i) {
+  assert(x != nullptr);
+  assert(y != nullptr);
+  assert(z != nullptr);
+
+  bool y_is_not_full = y->n <= (2*t - 1);
+  assert(y_is_not_full);
+
+  bool z_is_left_sibling_of_y = x->c[i] == z && x->c[i + 1] == y;
+  assert(z_is_left_sibling_of_y);
+
+  // We want to give `y` a key from it's parent `x`. Let's make some room by pushing all keys of `y` up 1.
+
+  int succeeds_k = i + 1;
+  Node* left_sibling = z;
+  Node* subtree_containing_k = y;
+
+  subtree_containing_k->n++;
+
+  // Pushing 
+  for (int i = subtree_containing_k->n - 1; i > 0; i--) {
+    subtree_containing_k->keys[i] = subtree_containing_k->keys[i-1];
+  }
+
+  subtree_containing_k->keys[0] = x->keys[succeeds_k-1];
+
+  x->keys[succeeds_k - 1] = left_sibling->keys[left_sibling->n-1];
+
+  // Push the children of subtree up
+  for (int i = subtree_containing_k->n; i > 0; i--) {
+    subtree_containing_k->c[i] = subtree_containing_k->c[i-1];
+  }
+
+  subtree_containing_k->c[0] = left_sibling->c[left_sibling->n];
+
+  left_sibling->n--;
+}
 
 // Give y an extra key by moving a key from its parent x down into y
 // Move a key from y's RIGHT sibling z up into x
@@ -242,6 +259,9 @@ void BTree::swap_right(Node *x, Node *y, Node *z, int i) {
 
   bool y_is_not_full = y->n <= (2*t - 1);
   assert(y_is_not_full);
+
+  bool z_is_right_sibling_of_y = x->c[i] == y && x->c[i + 1] == z;
+  assert(z_is_right_sibling_of_y);
 
   // Add a new key to `y`, taking the key at the dividing index.
   y->n++;
