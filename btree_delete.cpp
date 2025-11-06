@@ -35,7 +35,7 @@ void BTree::remove(Node *x, int k, bool x_root) {
   if (k_in_x && x->leaf) { // Case 1: the search arrives at a leaf node x that contains k
     const int k_index = succeeds_k;
     remove_leaf_key(x, k_index);
-  } else if (k_in_x && (!(x->leaf))) { // Case 2: The search arrives at an internal node x that contains k
+  } else if (k_in_x && (!x->leaf)) { // Case 2: The search arrives at an internal node x that contains k
     const int k_index = succeeds_k;
 
     Node* left = x->c[k_index];
@@ -92,10 +92,10 @@ void BTree::remove(Node *x, int k, bool x_root) {
         remove(left, k);
       }
     }
-  } else if (!k_in_x && !(x->leaf)) { // Case 3
+  } else if (!k_in_x && !x->leaf) { // Case 3
     // The subtree containing k if k is in the tree
     Node* subtree_containing_k = x->c[succeeds_k];
-    if (subtree_containing_k->n == (t-1)) { // Case 3a or 3b
+    if (subtree_containing_k->n == t-1) { // Case 3a or 3b
       Node* left_sibling = nullptr;
       Node* right_sibling = nullptr;
 
@@ -114,7 +114,7 @@ void BTree::remove(Node *x, int k, bool x_root) {
         sibling_with_t_keys = left_sibling;
       }
 
-      if (((subtree_containing_k->n) == (t - 1)) && (sibling_with_t_keys != nullptr)) { // Case 3a
+      if (subtree_containing_k->n == t - 1 && sibling_with_t_keys != nullptr) { // Case 3a
         if (sibling_with_t_keys == right_sibling) { // Case 3a right sibling has t keys
           swap_right(x, subtree_containing_k, right_sibling, succeeds_k);
         } else { // Case 3a left sibling has t keys
