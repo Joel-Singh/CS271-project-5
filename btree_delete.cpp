@@ -116,21 +116,7 @@ void BTree::remove(Node *x, int k, bool x_root) {
 
       if (((subtree_containing_k->n) == (t - 1)) && (sibling_with_t_keys != nullptr)) { // Case 3a
         if (sibling_with_t_keys == right_sibling) { // Case 3a right sibling has t keys
-          subtree_containing_k->keys[t-1] = x->keys[succeeds_k];
-          subtree_containing_k->n++;
-
-          x->keys[succeeds_k] = right_sibling->keys[0];
-
-          subtree_containing_k->c[subtree_containing_k->n] = right_sibling->c[0];
-
-          right_sibling->n--;
-          for (int i = 0; i < right_sibling->n; i++) {
-            right_sibling->keys[i] = right_sibling->keys[i+1];
-          }
-
-          for (int i = 0; i < right_sibling->n + 1; i++) {
-            right_sibling->c[i] = right_sibling->c[i+1];
-          }
+          swap_right(x, subtree_containing_k, right_sibling, succeeds_k);
         } else { // Case 3a left sibling has t keys
           assert(sibling_with_t_keys == left_sibling);
           subtree_containing_k->n++;
@@ -249,4 +235,36 @@ void BTree::swap_left(Node *x, Node *y, Node *z, int i) {}
 // Move a key from y's RIGHT sibling z up into x
 // Move appropriate child pointer from z into y
 // Let i be the index of the key dividing y and z in x
-void BTree::swap_right(Node *x, Node *y, Node *z, int i) {}
+void BTree::swap_right(Node *x, Node *y, Node *z, int i) {
+  assert(x != nullptr);
+  assert(y != nullptr);
+  assert(z != nullptr);
+
+  bool y_is_not_full = y->n <= (2*t - 1);
+  assert(y_is_not_full);
+
+  // Add a new key to `y`, taking the key at the dividing index.
+  y->n++;
+  y->keys[y->n-1] = x->keys[i];
+
+  // The key at the dividing index is replaced by the first key in the right
+  // sibling. At this point, The original key `x->keys[i]` has been fully moved
+  // from x to y.
+  x->keys[i] = z->keys[0];
+
+  // Since the first key of the right sibling (`z`) is being used to replace the
+  // key at the dividing index, we need to move its first child over to y.
+  // Remember, y has an empty child spot as y gained a key and z has one less
+  // child as z is losing a key.
+  y->c[y->n] = z->c[0];
+
+  // Move all the keys and children in the right sibling (`z`) to the left because `z` is losing its first key.
+  z->n--;
+  for (int i = 0; i < z->n; i++) {
+    z->keys[i] = z->keys[i+1];
+  }
+
+  for (int i = 0; i < z->n + 1; i++) {
+    z->c[i] = z->c[i+1];
+  }
+}
