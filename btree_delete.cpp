@@ -113,7 +113,6 @@ int BTree::find_k(Node *x, int k) {
         i++;
     }
 
-    cout << "sdfsf" << endl;    
     if (i <= x->n && k == x->keys[i]) {
         return (x, i);
     } else if (x->leaf) {
