@@ -221,31 +221,31 @@ void BTree::swap_left(Node *x, Node *y, Node *z, int i) {
   bool z_is_left_sibling_of_y = x->c[i] == z && x->c[i + 1] == y;
   assert(z_is_left_sibling_of_y);
 
-  // We want to give `y` a key from it's parent `x`. Let's make some room by pushing all keys of `y` up 1.
-
-  int succeeds_k = i + 1;
-  Node* left_sibling = z;
-  Node* subtree_containing_k = y;
-
-  subtree_containing_k->n++;
-
-  // Pushing 
-  for (int i = subtree_containing_k->n - 1; i > 0; i--) {
-    subtree_containing_k->keys[i] = subtree_containing_k->keys[i-1];
+  // We want to give `y` a key from it's parent `x`. Let's make some room by
+  // pushing all keys of `y` up 1. Giving a free spot at the front.
+  y->n++;
+  for (int i = y->n - 1; i > 0; i--) {
+    y->keys[i] = y->keys[i-1];
   }
 
-  subtree_containing_k->keys[0] = x->keys[succeeds_k-1];
-
-  x->keys[succeeds_k - 1] = left_sibling->keys[left_sibling->n-1];
-
-  // Push the children of subtree up
-  for (int i = subtree_containing_k->n; i > 0; i--) {
-    subtree_containing_k->c[i] = subtree_containing_k->c[i-1];
+  // Let's not forget to push `y`'s children up too, giving a free spot to put
+  // in `z`'s old rightmost child after `z` loses a key.
+  for (int i = y->n; i > 0; i--) {
+    y->c[i] = y->c[i-1];
   }
 
-  subtree_containing_k->c[0] = left_sibling->c[left_sibling->n];
+  // Let's add a key to `y` by taking the dividing key and putting it in the
+  // newly freed up first spot. The dividing key will be replaced by a key in
+  // `z`.
+  y->keys[0] = x->keys[i];
 
-  left_sibling->n--;
+  // Replace the dividing key with the last key of the left sibling.
+  x->keys[i] = z->keys[z->n-1];
+
+  // Let's move a child from `z` to `y` as `z` lost a child when losing a key
+  // and `y` has an extra child spot from gaining a key
+  y->c[0] = z->c[z->n];
+  z->n--;
 }
 
 // Give y an extra key by moving a key from its parent x down into y
@@ -278,7 +278,8 @@ void BTree::swap_right(Node *x, Node *y, Node *z, int i) {
   // child as z is losing a key.
   y->c[y->n] = z->c[0];
 
-  // Move all the keys and children in the right sibling (`z`) to the left because `z` is losing its first key.
+  // Move all the keys and children in the right sibling (`z`) one spot from the
+  // beginning because `z` is losing its first key.
   z->n--;
   for (int i = 0; i < z->n; i++) {
     z->keys[i] = z->keys[i+1];
