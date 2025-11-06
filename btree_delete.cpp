@@ -34,80 +34,70 @@ void BTree::remove(Node *x, int k, bool x_root) {
 
   bool k_in_x = x->keys[succeeds_k] == k;
   if (k_in_x && x->leaf) { // Case 1: the search arrives at a leaf node x that contains k
-      const int k_index = succeeds_k;
-      remove_leaf_key(x, k_index);
+    const int k_index = succeeds_k;
+    remove_leaf_key(x, k_index);
   } else if (k_in_x && (!(x->leaf))) { // Case 2: The search arrives at an internal node x that contains k
-      const int k_index = succeeds_k;
+    const int k_index = succeeds_k;
 
-      Node* left = x->c[k_index];
-      Node* right = x->c[k_index + 1];
+    Node* left = x->c[k_index];
+    Node* right = x->c[k_index + 1];
 
-      bool left_has_t_keys = left->n == t;
-      bool left_has_t_minus_one_keys = left->n == t - 1;
+    bool left_has_t_keys = left->n == t;
+    bool left_has_t_minus_one_keys = left->n == t - 1;
 
-      bool right_has_t_keys = right->n == t;
-      bool right_has_t_minus_one_keys = right->n == t - 1;
+    bool right_has_t_keys = right->n == t;
+    bool right_has_t_minus_one_keys = right->n == t - 1;
 
-      if (left_has_t_keys) { // Case 2a, x.c_i has at least t keys
-        int predecessor = max_key(left);
+    if (left_has_t_keys) { // Case 2a, x.c_i has at least t keys
+      int predecessor = max_key(left);
 
-        x->keys[k_index] = predecessor;
-        remove(left, predecessor);
-        return;
+      x->keys[k_index] = predecessor;
+      remove(left, predecessor);
+    } else if (left_has_t_minus_one_keys && right_has_t_keys) { // Case 2b
+      int successor = min_key(right);
+
+      x->keys[k_index] = successor;
+      remove(right, successor);
+    } else if (left_has_t_minus_one_keys && right_has_t_minus_one_keys) { // Case 2c
+      // left is going to get 2t - 1 keys
+      left->n = 2*t - 1;
+
+      // Merge k and all keys in right into left
+      left->keys[t - 1] = k;
+      for (int i = 0; i < t - 1; i++) {
+        left->keys[t + i] = right->keys[i];
       }
 
-      if (left_has_t_minus_one_keys && right_has_t_keys) { // Case 2b
-        int successor = min_key(right);
-
-        x->keys[k_index] = successor;
-        remove(right, successor);
-        return;
+      // Remove k from x after merge
+      x->n--;
+      for (int i = k_index; i < x->n; i++) {
+        x->keys[i] = x->keys[i+1];
       }
 
-      if (left_has_t_minus_one_keys && right_has_t_minus_one_keys) { // Case 2c
-
-        // left is going to get 2t - 1 keys
-        left->n = 2*t - 1;
-
-        // Merge k and all keys in right into left
-        left->keys[t - 1] = k;
-        for (int i = 0; i < t - 1; i++) {
-          left->keys[t + i] = right->keys[i];
-        }
-
-        // Remove k from x after merge
-        x->n--;
-        for (int i = k_index; i < x->n; i++) {
-          x->keys[i] = x->keys[i+1];
-        }
-
-        // Remove the pointer to right
-        for (int i = k_index+1; i < (x->n+1); i++) {
-          x->c[i] = x->c[i+1];
-        }
-        delete right;
-
-        if (x_root && x->n == 0) { // Still case 2c where x is the root but becomes empty. See page 516, paragraph below case 3b.
-          Node* old_root = root;
-          root = x->c[0];
-          root->leaf = true;
-          remove(root, k);
-
-          delete old_root;
-        } else {
-
-          // Can finally recursively delete k from left
-          remove(left, k);
-        }
-
-        return;
+      // Remove the pointer to right
+      for (int i = k_index+1; i < (x->n+1); i++) {
+        x->c[i] = x->c[i+1];
       }
-  } else if (!k_in_x && !(x->leaf)) {
+      delete right;
+
+      if (x_root && x->n == 0) { // Still case 2c where x is the root but becomes empty. See page 516, paragraph below case 3b.
+        Node* old_root = root;
+        root = x->c[0];
+        root->leaf = true;
+        remove(root, k);
+
+        delete old_root;
+      } else {
+
+        // Can finally recursively delete k from left
+        remove(left, k);
+      }
+    }
+  } else if (!k_in_x && !(x->leaf)) { // Case "3"
     for (int i = 0; i < x->n + 1; i++) {
       remove(x->c[i], k);
     }
   }
-
 }
 
 // return the index i of the first key in the btree node x where k <= x.keys[i]
