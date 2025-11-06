@@ -77,15 +77,15 @@ void BTree::remove(Node *x, int k, bool x_root) {
 
         // Remove k from x after merge
         x->n--;
-        for (int i = k_index; k < x->n; i++) {
+        for (int i = k_index; i < x->n; i++) {
           x->keys[i] = x->keys[i+1];
         }
 
         // Remove the pointer to right
-        delete right;
-        for (int i = k_index+1; k < (x->n+1); i++) {
+        for (int i = k_index+1; i < (x->n+1); i++) {
           x->c[i] = x->c[i+1];
         }
+        delete right;
 
         // Can finally recursively delete k from left
         remove(left, k);
