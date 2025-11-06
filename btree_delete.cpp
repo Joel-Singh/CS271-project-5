@@ -25,9 +25,8 @@ void BTree::remove(Node *x, int k, bool x_root) {
 
   // Find the first index `k` is greater than or equal to
   int succeeds_k = 0;
-  for (int i = 0; i < x->n; i++) {
-    if (x->keys[i] >= k) {
-      succeeds_k = i;
+  for (; succeeds_k < x->n; succeeds_k++) {
+    if (x->keys[succeeds_k] >= k) {
       break;
     }
   }
@@ -93,10 +92,72 @@ void BTree::remove(Node *x, int k, bool x_root) {
         remove(left, k);
       }
     }
-  } else if (!k_in_x && !(x->leaf)) { // Case "3"
-    for (int i = 0; i < x->n + 1; i++) {
-      remove(x->c[i], k);
+  } else if (!k_in_x && !(x->leaf)) { // Case 3
+    // The subtree containing k if k is in the tree
+    Node* subtree_containing_k = x->c[succeeds_k];
+    if (subtree_containing_k->n == (t-1)) { // Case 3a or 3b
+      Node* left_sibling = nullptr;
+      Node* right_sibling = nullptr;
+
+      if (succeeds_k < (x->n + 1)) {
+        right_sibling = x->c[succeeds_k + 1];
+      }
+
+      if (succeeds_k > 0) {
+        left_sibling = x->c[succeeds_k - 1];
+      }
+
+      Node* sibling_with_t_keys = nullptr;
+      if (right_sibling != nullptr && right_sibling->n == t) {
+        sibling_with_t_keys = right_sibling;
+      } else if (left_sibling != nullptr && left_sibling->n == t) {
+        sibling_with_t_keys = left_sibling;
+      }
+
+      if (((subtree_containing_k->n) == (t - 1)) && (sibling_with_t_keys != nullptr)) { // Case 3a
+        if (sibling_with_t_keys == right_sibling) { // Case 3a right sibling has t keys
+          subtree_containing_k->keys[t-1] = x->keys[succeeds_k];
+          subtree_containing_k->n++;
+
+          x->keys[succeeds_k] = right_sibling->keys[0];
+
+          subtree_containing_k->c[subtree_containing_k->n] = right_sibling->c[0];
+
+          right_sibling->n--;
+          for (int i = 0; i < right_sibling->n; i++) {
+            right_sibling->keys[i] = right_sibling->keys[i+1];
+          }
+
+          for (int i = 0; i < right_sibling->n + 1; i++) {
+            right_sibling->c[i] = right_sibling->c[i+1];
+          }
+        } else { // Case 3a left sibling has t keys
+          assert(sibling_with_t_keys == left_sibling);
+          subtree_containing_k->n++;
+
+          // Pushing 
+          for (int i = subtree_containing_k->n - 1; i > 0; i--) {
+            subtree_containing_k->keys[i] = subtree_containing_k->keys[i-1];
+          }
+
+          subtree_containing_k->keys[0] = x->keys[succeeds_k-1];
+
+          x->keys[succeeds_k - 1] = left_sibling->keys[left_sibling->n-1];
+
+          // Push the children of subtree up
+          for (int i = subtree_containing_k->n; i > 0; i--) {
+            subtree_containing_k->c[i] = subtree_containing_k->c[i-1];
+          }
+
+          subtree_containing_k->c[0] = left_sibling->c[left_sibling->n];
+
+          left_sibling->n--;
+        }
+      } else { // Both siblings must have t-1 keys
+      }
     }
+
+    remove(subtree_containing_k, k);
   }
 }
 
