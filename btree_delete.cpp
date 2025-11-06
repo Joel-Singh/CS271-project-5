@@ -33,11 +33,11 @@ void BTree::remove(Node *x, int k, bool x_root) {
   }
 
   bool k_in_x = x->keys[succeeds_k] == k;
-  if (k_in_x) {
-    const int k_index = succeeds_k;
-    if (x->leaf) { // Case 1: the search arrives at a leaf node x that contains k
+  if (k_in_x && x->leaf) { // Case 1: the search arrives at a leaf node x that contains k
+      const int k_index = succeeds_k;
       remove_leaf_key(x, k_index);
-    } else { // Case 2: The search arrives at an internal node x that contains k
+  } else if (k_in_x && (!(x->leaf))) { // Case 2: The search arrives at an internal node x that contains k
+      const int k_index = succeeds_k;
 
       Node* left = x->c[k_index];
       Node* right = x->c[k_index + 1];
@@ -102,12 +102,12 @@ void BTree::remove(Node *x, int k, bool x_root) {
 
         return;
       }
+  } else if (!k_in_x && !(x->leaf)) {
+    for (int i = 0; i < x->n + 1; i++) {
+      remove(x->c[i], k);
     }
   }
 
-  for (int i = 0; i < x->n + 1; i++) {
-    remove(x->c[i], k);
-  }
 }
 
 // return the index i of the first key in the btree node x where k <= x.keys[i]
