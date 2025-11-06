@@ -52,7 +52,7 @@ void BTree::remove(Node *x, int k, bool x_root) {
       int predecessor = max_key(left);
 
       x->keys[k_index] = predecessor;
-      remove(left, predecessor);
+      remove(left, predecessor); // What remove is this calling? I don't see any remove functions with only two parameters
     } else if (left_has_t_minus_one_keys && right_has_t_keys) { // Case 2b
       int successor = min_key(right);
 
@@ -63,7 +63,7 @@ void BTree::remove(Node *x, int k, bool x_root) {
       left->n = 2*t - 1;
 
       // Merge k and all keys in right into left
-      left->keys[t - 1] = k;
+      left->keys[t - 1] = k; // Why is this so?
       for (int i = 0; i < t - 1; i++) {
         left->keys[t + i] = right->keys[i];
       }
