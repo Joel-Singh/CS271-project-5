@@ -87,8 +87,19 @@ void BTree::remove(Node *x, int k, bool x_root) {
         }
         delete right;
 
-        // Can finally recursively delete k from left
-        remove(left, k);
+        if (x_root && x->n == 0) { // Still case 2c where x is the root but becomes empty. See page 516, paragraph below case 3b.
+          Node* old_root = root;
+          root = x->c[0];
+          root->leaf = true;
+          remove(root, k);
+
+          delete old_root;
+        } else {
+
+          // Can finally recursively delete k from left
+          remove(left, k);
+        }
+
         return;
       }
     }
