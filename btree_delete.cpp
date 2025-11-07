@@ -82,7 +82,7 @@ void BTree::remove(Node *x, int k, bool x_root) {
       if (x_root && x->n == 0) { // Still case 2c where x is the root but becomes empty. See page 516, paragraph below case 3b.
         Node* old_root = root;
         root = x->c[0];
-        root->leaf = true;
+        root->leaf = true; // INCORRECT: there are cases where the root should not become a leaf
         remove(root, k);
 
         delete old_root;
@@ -120,7 +120,56 @@ void BTree::remove(Node *x, int k, bool x_root) {
         } else { // Case 3a left sibling has t keys
           swap_left(x, subtree_containing_k, left_sibling, succeeds_k - 1);
         }
-      } else { // Both siblings must have t-1 keys
+      } else { // Both siblings (or just one) must have t-1 keys
+        assert(left_sibling != nullptr || right_sibling != nullptr);
+
+        bool sibling_is_right = right_sibling != nullptr;
+        Node* new_left_side = nullptr;
+        Node* new_right_side = nullptr;
+        if (sibling_is_right) {
+          new_left_side = subtree_containing_k;
+          new_right_side = right_sibling;
+        } else {
+          new_left_side = left_sibling;
+          new_right_side = subtree_containing_k;
+        }
+
+
+        // Let's set the key array of each node to the right values
+        size_t dividing_key = sibling_is_right ? succeeds_k : succeeds_k - 1;
+        new_left_side->keys[t-1] = x->keys[dividing_key];
+
+        for (int i = t; i < 2 * t - 1; i++) {
+          new_left_side->keys[i] = new_right_side->keys[i - t];
+        }
+
+        // The merged node will have (t - 1) [left side] plus (t - 1) [right side] plus (1) [key from x] nodes which equal 2t - 1
+        new_left_side->n = 2 * t - 1;
+
+        // Now lets cleanup the children arrays
+        for (int i = t; i < 2*t; i++) {
+          new_left_side->c[i] = new_right_side->c[i - t];
+        }
+
+        x->n--;
+        for (int i = dividing_key+1; i < x->n+1; i++) {
+          x->c[i] = x->c[i+1];
+        }
+
+        // for (int i = 0; i < x->n+i; i++) {
+        //   assert(x->c[i] != new_right_side);
+        // }
+
+        delete new_right_side;
+
+        if (x_root && x->n == 0) { // Still case 3b where x is the root but becomes empty. See page 516, paragraph below case 3b.
+          Node* old_root = root;
+          root = x->c[0];
+
+          subtree_containing_k = root;
+
+          delete old_root;
+        }
       }
     }
 
