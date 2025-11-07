@@ -31,7 +31,7 @@ void BTree::remove(Node *x, int k, bool x_root) {
     }
   }
 
-  bool k_in_x = x->keys[succeeds_k] == k;
+  bool k_in_x = succeeds_k != x->n && x->keys[succeeds_k] == k;
   if (k_in_x && x->leaf) { // Case 1: the search arrives at a leaf node x that contains k
     const int k_index = succeeds_k;
     remove_leaf_key(x, k_index);
@@ -99,7 +99,7 @@ void BTree::remove(Node *x, int k, bool x_root) {
       Node* left_sibling = nullptr;
       Node* right_sibling = nullptr;
 
-      if (succeeds_k < (x->n + 1)) {
+      if ((succeeds_k+1) < (x->n + 1)) {
         right_sibling = x->c[succeeds_k + 1];
       }
 
@@ -156,10 +156,7 @@ void BTree::remove(Node *x, int k, bool x_root) {
           x->c[i] = x->c[i+1];
         }
 
-        // for (int i = 0; i < x->n+i; i++) {
-        //   assert(x->c[i] != new_right_side);
-        // }
-
+        subtree_containing_k = new_left_side;
         delete new_right_side;
 
         if (x_root && x->n == 0) { // Still case 3b where x is the root but becomes empty. See page 516, paragraph below case 3b.
