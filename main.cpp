@@ -163,7 +163,7 @@ int main() {
   test_case2b(all_passed, all_total);
   test_2c(all_passed, all_total);
   test_3a(all_passed, all_total);
-  // test_3b(all_passed, all_total);
+  test_3b(all_passed, all_total);
 
   std::cout << "\nPassed a total of " << all_passed << "/" << all_total
             << " tests." << std::endl;
