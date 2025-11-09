@@ -68,6 +68,8 @@ void test_remove_leaf_key() {
     tree.remove_leaf_key(node, 0);
 
     test("Removing from single key node makes it empty", node->n, 0);
+
+    delete node;
   }
 
   {
@@ -80,6 +82,8 @@ void test_remove_leaf_key() {
     tree.remove_leaf_key(node, 1);
 
     test("Removing from leaf node in the middle shifts keys", array_to_string(node->keys, node->n), "1 3");
+
+    delete node;
   }
 
   {
@@ -92,6 +96,8 @@ void test_remove_leaf_key() {
     tree.remove_leaf_key(node, 0);
 
     test("Removing from leaf node at beginning shifts keys", array_to_string(node->keys, node->n), "2 3");
+
+    delete node;
   }
 
   {
@@ -104,6 +110,8 @@ void test_remove_leaf_key() {
     tree.remove_leaf_key(node, 2);
 
     test("Removing from leaf node at end shifts keys", array_to_string(node->keys, node->n), "1 2");
+
+    delete node;
   }
 }
 
