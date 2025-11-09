@@ -12,6 +12,8 @@ please check for an immediate right sibling first.
 
 using namespace std;
 
+void merge_nodes(Node* parent, Node* left, Node* right, size_t dividing_key, int t);
+
 // delete the key k from the btree
 void BTree::remove(int k) {
   remove(root, k, true);
@@ -124,40 +126,22 @@ void BTree::remove(Node *x, int k, bool x_root) {
         assert(left_sibling != nullptr || right_sibling != nullptr);
 
         bool sibling_is_right = right_sibling != nullptr;
-        Node* new_left_side = nullptr;
-        Node* new_right_side = nullptr;
+        Node* left_side = nullptr;
+        Node* right_side = nullptr;
         if (sibling_is_right) {
-          new_left_side = subtree_containing_k;
-          new_right_side = right_sibling;
+          left_side = subtree_containing_k;
+          right_side = right_sibling;
         } else {
-          new_left_side = left_sibling;
-          new_right_side = subtree_containing_k;
+          left_side = left_sibling;
+          right_side = subtree_containing_k;
         }
 
 
         // Let's set the key array of each node to the right values
         size_t dividing_key = sibling_is_right ? succeeds_k : succeeds_k - 1;
-        new_left_side->keys[t-1] = x->keys[dividing_key];
+        merge_nodes(x, left_side, right_side, dividing_key, t);
 
-        for (int i = t; i < 2 * t - 1; i++) {
-          new_left_side->keys[i] = new_right_side->keys[i - t];
-        }
-
-        // The merged node will have (t - 1) [left side] plus (t - 1) [right side] plus (1) [key from x] nodes which equal 2t - 1
-        new_left_side->n = 2 * t - 1;
-
-        // Now lets cleanup the children arrays
-        for (int i = t; i < 2*t; i++) {
-          new_left_side->c[i] = new_right_side->c[i - t];
-        }
-
-        x->n--;
-        for (int i = dividing_key+1; i < x->n+1; i++) {
-          x->c[i] = x->c[i+1];
-        }
-
-        subtree_containing_k = new_left_side;
-        delete new_right_side;
+        subtree_containing_k = left_side;
 
         if (x_root && x->n == 0) { // Still case 3b where x is the root but becomes empty. See page 516, paragraph below case 3b.
           Node* old_root = root;
@@ -251,8 +235,59 @@ int BTree::min_key(Node *x) {
   }
 }
 
+//=================================================
+// merge_nodes
+// Merge the right node into the left node, deleting the right node. Each node
+// has specific preconditions described below along with all nodes obviously
+// being a part of the same tree.
+//
+// PARAMETERS:
+//  parent: The parent of `left` and `right`
+//
+//  left: non-null Node that is the left sibling of `right` with `t - 1` keys
+//
+//  right: non-null Node that is the right sibling of `left` with `t - 1`
+//  keys.
+//
+//  dividing_key: The key in `parent` that divides `left` and `right` t:
+//  The degree of the tree all nodes come from
+//=================================================
+void merge_nodes(Node* parent, Node* left, Node* right, size_t dividing_key, int t) {
+  assert(parent != nullptr);
+  assert(left != nullptr);
+  assert(right != nullptr);
+  assert(left->n == t - 1);
+  assert(right->n == t - 1);
+
+  left->keys[t-1] = parent->keys[dividing_key];
+
+  // Move all the keys in right to left
+  for (int i = t; i < 2 * t - 1; i++) {
+    left->keys[i] = right->keys[i - t];
+  }
+
+  // The merged node will have (t - 1) [left side] plus (t - 1) [right side] plus (1) [key from x] nodes which equal 2t - 1
+  left->n = 2 * t - 1;
+
+  // Now lets cleanup the children arrays
+
+  // Take all the children from right and put it into left
+  for (int i = t; i < 2*t; i++) {
+    left->c[i] = right->c[i - t];
+  }
+
+  // Remove a child from parent
+  parent->n--;
+  for (int i = dividing_key+1; i < parent->n+1; i++) {
+    parent->c[i] = parent->c[i+1];
+  }
+
+  delete right;
+}
+
 // merge key k and all keys and children from y into y's LEFT sibling x
-void BTree::merge_left(Node *x, Node *y, int k) {}
+void BTree::merge_left(Node *x, Node *y, int k) {
+}
 
 // merge key k and all keys and children from y into y's RIGHT sibling x
 void BTree::merge_right(Node *x, Node *y, int k) {}
