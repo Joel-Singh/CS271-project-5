@@ -120,7 +120,7 @@ void BTree::remove(Node *x, int k, bool x_root) {
         } else { // Case 3a left sibling has t keys
           swap_left(x, subtree_containing_k, left_sibling, succeeds_k - 1);
         }
-      } else { // Both siblings (or just one) must have t-1 keys
+      } else { // Case 3b, Both siblings (or just one) must have t-1 keys
         assert(left_sibling != nullptr || right_sibling != nullptr);
 
         bool sibling_is_right = right_sibling != nullptr;
