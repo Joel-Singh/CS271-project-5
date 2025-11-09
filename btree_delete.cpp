@@ -25,13 +25,7 @@ void BTree::remove(Node *x, int k, bool x_root) {
     return;
   }
 
-  // Find the first index `k` is greater than or equal to
-  int succeeds_k = 0;
-  for (; succeeds_k < x->n; succeeds_k++) {
-    if (x->keys[succeeds_k] >= k) {
-      break;
-    }
-  }
+  int succeeds_k = find_k(x, k);
 
   bool k_in_x = succeeds_k != x->n && x->keys[succeeds_k] == k;
   if (k_in_x && x->leaf) { // Case 1: the search arrives at a leaf node x that contains k
@@ -161,23 +155,14 @@ void BTree::remove(Node *x, int k, bool x_root) {
 // return the index i of the first key in the btree node x where k <= x.keys[i]
 // if i = x.n then no such key exists
 int BTree::find_k(Node *x, int k) {    
-    int i = 0;
-    
-    if (x == nullptr) {
-        return 0;
+  int i = 0;
+  for (; i < x->n; i++) {
+    if (k <= x->keys[i]) {
+      break;
     }
+  }
 
-    while (i < x->n && k > x->keys[i]) {
-        i++;
-    }
-
-    if (i <= x->n && k == x->keys[i]) {
-        return (x, i);
-    } else if (x->leaf) {
-        return (x->n);
-    } else {
-        return find_k(x->c[i], k);
-    }   
+  return i;
 }
 
 // remove the key at index i from a btree leaf node x
