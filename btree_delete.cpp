@@ -104,23 +104,23 @@ void BTree::remove(Node *x, int k, bool x_root) {
       } else { // Case 3b, Both siblings (or just one) must have t-1 keys
         assert(left_sibling != nullptr || right_sibling != nullptr);
 
+        // Whether the sibling we're merging is going to be the right or left.
+        // We check for right first per the pdf.
         bool sibling_is_right = right_sibling != nullptr;
-        Node* left_side = nullptr;
-        Node* right_side = nullptr;
+
+        size_t dividing_key = sibling_is_right ? succeeds_k : succeeds_k - 1;
         if (sibling_is_right) {
-          left_side = subtree_containing_k;
-          right_side = right_sibling;
+          merge_left(subtree_containing_k, right_sibling, x->keys[dividing_key]);
         } else {
-          left_side = left_sibling;
-          right_side = subtree_containing_k;
+          merge_right(subtree_containing_k, left_sibling, x->keys[dividing_key]);
         }
 
+        x->n--;
 
-        // Let's set the key array of each node to the right values
-        size_t dividing_key = sibling_is_right ? succeeds_k : succeeds_k - 1;
-        merge_nodes(x, left_side, right_side, dividing_key, t);
-
-        subtree_containing_k = left_side;
+        size_t sibling_child_indice_to_remove  = sibling_is_right ? succeeds_k + 1 : succeeds_k - 1;
+        for (int i = sibling_child_indice_to_remove; i < x->n+1; i++) {
+          x->c[i] = x->c[i+1];
+        }
 
         if (x_root && x->n == 0) { // Still case 3b where x is the root but becomes empty. See page 516, paragraph below case 3b.
           Node* old_root = root;
@@ -294,17 +294,35 @@ void BTree::merge_right(Node *x, Node *y, int k) {
   assert(x->n == t - 1);
   assert(y->n == t - 1);
 
-  y->keys[t-1] = k;
-
-  for(int m = t; m < 2*t - 1; m++) {
-    y->keys[m] = x->keys[m-t];
+  // Shift all keys currently in x to the right side
+  for(int i = 0; i < t - 1; i++) {
+    x->keys[i + t] = x->keys[i];
   }
 
-  for(int m = t; m < 2*t; m++) {
-    y->c[m] = x->c[m-t];
+  // Fill in the empty left side with y now
+  for (int i = 0; i < t - 1; i++) {
+    x->keys[i] = y->keys[i];
   }
 
-  delete x;
+  // The key between the left side values and right side values will be k
+  x->keys[t-1] = k;
+
+  // Update the number of keys in x
+  x->n = 2*t - 1;
+
+  // Time to adjust children,
+
+  // Move all the children in x to the right
+  for (int i = 0; i < t; i++) {
+    x->c[i + t] = x->c[i];
+  }
+
+  // Put y's children into x
+  for (int i = 0; i < t; i++) {
+    x->c[i] = y->c[i];
+  }
+
+  delete y;
 }
 
 // Give y an extra key by moving a key from its parent x down into y
