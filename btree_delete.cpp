@@ -64,15 +64,7 @@ void BTree::remove(Node *x, int k, bool x_root) {
       }
 
       // Remove k from x after merge
-      x->n--;
-      for (int i = k_index; i < x->n; i++) {
-        x->keys[i] = x->keys[i+1];
-      }
-
-      // Remove the pointer to right
-      for (int i = k_index+1; i < (x->n+1); i++) {
-        x->c[i] = x->c[i+1];
-      }
+      remove_internal_key(x, k_index, k_index+1);
       delete right;
 
       if (x_root && x->n == 0) { // Still case 2c where x is the root but becomes empty. See page 516, paragraph below case 3b.
@@ -187,7 +179,18 @@ void BTree::remove_leaf_key(Node *x, int i) {
 }
 
 // remove the key at index i and child at index j from a btree internal node x
-void BTree::remove_internal_key(Node *x, int i, int j) {}
+void BTree::remove_internal_key(Node *x, int i, int j) {
+
+  for(int m = i; m < x->n - 1; m++){
+    x->keys[m] = x->keys[m + 1];
+  }
+  x->n--;
+
+  for(int k = j; k < x->n + 1; k++) {
+    x->c[k] = x->c[j+1];
+  }
+
+}
 
 // return the max key in the btree rooted at node x
 int BTree::max_key(Node *x) { 
