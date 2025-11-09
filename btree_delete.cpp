@@ -64,8 +64,6 @@ void BTree::remove(Node *x, int k, bool x_root) {
       if (x_root && x->n == 0) { // Still case 2c where x is the root but becomes empty. See page 516, paragraph below case 3b.
         Node* old_root = root;
         root = x->c[0];
-        // If x is a leaf then the root becomes a leaf?
-        root->leaf = true; // INCORRECT: there are cases where the root should not become a leaf
         remove(root, k);
 
         delete old_root;
