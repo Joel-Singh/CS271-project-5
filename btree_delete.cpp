@@ -210,6 +210,11 @@ void BTree::remove_leaf_key(Node *x, int i) {
   }
 
   x->n--;
+
+  if (x->n == 0 && x == root) {
+    delete root;
+    root = nullptr;
+  }
 }
 
 // remove the key at index i and child at index j from a btree internal node x
