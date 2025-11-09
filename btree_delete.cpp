@@ -54,6 +54,7 @@ void BTree::remove(Node *x, int k, bool x_root) {
       x->keys[k_index] = successor;
       remove(right, successor);
     } else if (left_has_t_minus_one_keys && right_has_t_minus_one_keys) { // Case 2c
+      assert(right->leaf);
       // left is going to get 2t - 1 keys
       left->n = 2*t - 1;
 
@@ -70,6 +71,7 @@ void BTree::remove(Node *x, int k, bool x_root) {
       if (x_root && x->n == 0) { // Still case 2c where x is the root but becomes empty. See page 516, paragraph below case 3b.
         Node* old_root = root;
         root = x->c[0];
+        // If x is a leaf then the root becomes a leaf?
         root->leaf = true; // INCORRECT: there are cases where the root should not become a leaf
         remove(root, k);
 
@@ -275,10 +277,44 @@ void merge_nodes(Node* parent, Node* left, Node* right, size_t dividing_key, int
 
 // merge key k and all keys and children from y into y's LEFT sibling x
 void BTree::merge_left(Node *x, Node *y, int k) {
+  assert(x != nullptr);
+  assert(y != nullptr);
+  assert(x->n == t - 1);
+  assert(y->n == t - 1);
+
+  x->keys[t-1] = k;
+
+  x->n = 2*t - 1;
+  for(int m = t; m < 2*t - 1; m++) {
+    x->keys[m] = y->keys[m-t];
+  }
+
+  for(int m = t; m < 2*t; m++) {
+    x->c[m] = y->c[m-t];
+  }
+
+  delete y;
 }
 
 // merge key k and all keys and children from y into y's RIGHT sibling x
-void BTree::merge_right(Node *x, Node *y, int k) {}
+void BTree::merge_right(Node *x, Node *y, int k) {
+  assert(x != nullptr);
+  assert(y != nullptr);
+  assert(x->n == t - 1);
+  assert(y->n == t - 1);
+
+  y->keys[t-1] = k;
+
+  for(int m = t; m < 2*t - 1; m++) {
+    y->keys[m] = x->keys[m-t];
+  }
+
+  for(int m = t; m < 2*t; m++) {
+    y->c[m] = x->c[m-t];
+  }
+
+  delete x;
+}
 
 // Give y an extra key by moving a key from its parent x down into y
 // Move a key from y's LEFT sibling z up into x
