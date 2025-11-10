@@ -1,10 +1,9 @@
 #include "btree.h"
 #include "btree_delete.cpp"
+#include "btree_helper_functions.cpp"
 #include "extended_tests.cpp"
 #include <cassert>
 #include <iterator>
-#include "btree_helper_functions.cpp"
-
 
 void test_case1(int &correct, int &total) {
   int correct_count = 0;
@@ -154,7 +153,7 @@ void test_3b(int &correct, int &total) {
 
 int main() {
 
-  #ifndef EXTENDED_TESTS_ONLY
+#ifndef EXTENDED_TESTS_ONLY
   int all_passed = 0;
   int all_total = 0;
 
@@ -167,7 +166,7 @@ int main() {
 
   std::cout << "\nPassed a total of " << all_passed << "/" << all_total
             << " tests." << std::endl;
-  #endif
+#endif
 
   extended_tests();
 

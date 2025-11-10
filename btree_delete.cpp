@@ -12,12 +12,11 @@ please check for an immediate right sibling first.
 
 using namespace std;
 
-void merge_nodes(Node* parent, Node* left, Node* right, size_t dividing_key, int t);
+void merge_nodes(Node *parent, Node *left, Node *right, size_t dividing_key,
+                 int t);
 
 // delete the key k from the btree
-void BTree::remove(int k) {
-  remove(root, k, true);
-}
+void BTree::remove(int k) { remove(root, k, true); }
 
 // delete the key k from the btree rooted at x
 void BTree::remove(Node *x, int k, bool x_root) {
@@ -28,14 +27,16 @@ void BTree::remove(Node *x, int k, bool x_root) {
   int succeeds_k = find_k(x, k);
 
   bool k_in_x = succeeds_k != x->n && x->keys[succeeds_k] == k;
-  if (k_in_x && x->leaf) { // Case 1: the search arrives at a leaf node x that contains k
+  if (k_in_x &&
+      x->leaf) { // Case 1: the search arrives at a leaf node x that contains k
     const int k_index = succeeds_k;
     remove_leaf_key(x, k_index);
-  } else if (k_in_x && (!x->leaf)) { // Case 2: The search arrives at an internal node x that contains k
+  } else if (k_in_x && (!x->leaf)) { // Case 2: The search arrives at an
+                                     // internal node x that contains k
     const int k_index = succeeds_k;
 
-    Node* left = x->c[k_index];
-    Node* right = x->c[k_index + 1];
+    Node *left = x->c[k_index];
+    Node *right = x->c[k_index + 1];
 
     bool left_has_t_keys = left->n == t;
     bool left_has_t_minus_one_keys = left->n == t - 1;
@@ -47,22 +48,25 @@ void BTree::remove(Node *x, int k, bool x_root) {
       int predecessor = max_key(left);
 
       x->keys[k_index] = predecessor;
-      remove(left, predecessor); 
+      remove(left, predecessor);
     } else if (left_has_t_minus_one_keys && right_has_t_keys) { // Case 2b
       int successor = min_key(right);
 
       x->keys[k_index] = successor;
       remove(right, successor);
-    } else if (left_has_t_minus_one_keys && right_has_t_minus_one_keys) { // Case 2c
+    } else if (left_has_t_minus_one_keys &&
+               right_has_t_minus_one_keys) { // Case 2c
       assert(right->leaf);
-      
+
       merge_left(left, right, k);
 
       // Remove k from x after merge
-      remove_internal_key(x, k_index, k_index+1);
+      remove_internal_key(x, k_index, k_index + 1);
 
-      if (x_root && x->n == 0) { // Still case 2c where x is the root but becomes empty. See page 516, paragraph below case 3b.
-        Node* old_root = root;
+      if (x_root &&
+          x->n == 0) { // Still case 2c where x is the root but becomes empty.
+                       // See page 516, paragraph below case 3b.
+        Node *old_root = root;
         root = x->c[0];
         remove(root, k);
 
@@ -75,12 +79,12 @@ void BTree::remove(Node *x, int k, bool x_root) {
     }
   } else if (!k_in_x && !x->leaf) { // Case 3
     // The subtree containing k if k is in the tree
-    Node* subtree_containing_k = x->c[succeeds_k];
-    if (subtree_containing_k->n == t-1) { // Case 3a or 3b
-      Node* left_sibling = nullptr;
-      Node* right_sibling = nullptr;
+    Node *subtree_containing_k = x->c[succeeds_k];
+    if (subtree_containing_k->n == t - 1) { // Case 3a or 3b
+      Node *left_sibling = nullptr;
+      Node *right_sibling = nullptr;
 
-      if ((succeeds_k+1) < (x->n + 1)) {
+      if ((succeeds_k + 1) < (x->n + 1)) {
         right_sibling = x->c[succeeds_k + 1];
       }
 
@@ -88,15 +92,17 @@ void BTree::remove(Node *x, int k, bool x_root) {
         left_sibling = x->c[succeeds_k - 1];
       }
 
-      Node* sibling_with_t_keys = nullptr;
+      Node *sibling_with_t_keys = nullptr;
       if (right_sibling != nullptr && right_sibling->n == t) {
         sibling_with_t_keys = right_sibling;
       } else if (left_sibling != nullptr && left_sibling->n == t) {
         sibling_with_t_keys = left_sibling;
       }
 
-      if (subtree_containing_k->n == t - 1 && sibling_with_t_keys != nullptr) { // Case 3a
-        if (sibling_with_t_keys == right_sibling) { // Case 3a right sibling has t keys
+      if (subtree_containing_k->n == t - 1 &&
+          sibling_with_t_keys != nullptr) { // Case 3a
+        if (sibling_with_t_keys ==
+            right_sibling) { // Case 3a right sibling has t keys
           swap_right(x, subtree_containing_k, right_sibling, succeeds_k);
         } else { // Case 3a left sibling has t keys
           swap_left(x, subtree_containing_k, left_sibling, succeeds_k - 1);
@@ -110,20 +116,25 @@ void BTree::remove(Node *x, int k, bool x_root) {
 
         size_t dividing_key = sibling_is_right ? succeeds_k : succeeds_k - 1;
         if (sibling_is_right) {
-          merge_left(subtree_containing_k, right_sibling, x->keys[dividing_key]);
+          merge_left(subtree_containing_k, right_sibling,
+                     x->keys[dividing_key]);
         } else {
-          merge_right(subtree_containing_k, left_sibling, x->keys[dividing_key]);
+          merge_right(subtree_containing_k, left_sibling,
+                      x->keys[dividing_key]);
         }
 
         x->n--;
 
-        size_t sibling_child_indice_to_remove  = sibling_is_right ? succeeds_k + 1 : succeeds_k - 1;
-        for (int i = sibling_child_indice_to_remove; i < x->n+1; i++) {
-          x->c[i] = x->c[i+1];
+        size_t sibling_child_indice_to_remove =
+            sibling_is_right ? succeeds_k + 1 : succeeds_k - 1;
+        for (int i = sibling_child_indice_to_remove; i < x->n + 1; i++) {
+          x->c[i] = x->c[i + 1];
         }
 
-        if (x_root && x->n == 0) { // Still case 3b where x is the root but becomes empty. See page 516, paragraph below case 3b.
-          Node* old_root = root;
+        if (x_root &&
+            x->n == 0) { // Still case 3b where x is the root but becomes empty.
+                         // See page 516, paragraph below case 3b.
+          Node *old_root = root;
           root = x->c[0];
 
           subtree_containing_k = root;
@@ -139,7 +150,7 @@ void BTree::remove(Node *x, int k, bool x_root) {
 
 // return the index i of the first key in the btree node x where k <= x.keys[i]
 // if i = x.n then no such key exists
-int BTree::find_k(Node *x, int k) {    
+int BTree::find_k(Node *x, int k) {
   int i = 0;
   for (; i < x->n; i++) {
     if (k <= x->keys[i]) {
@@ -156,11 +167,11 @@ void BTree::remove_leaf_key(Node *x, int i) {
   assert(x != nullptr);
   assert(x->leaf == true);
 
-  bool i_is_valid = i >= 0 && i < x->n ;
+  bool i_is_valid = i >= 0 && i < x->n;
   assert(i_is_valid);
 
   for (int j = i; j < (x->n - 1); j++) {
-    x->keys[j] = x->keys[j+1];
+    x->keys[j] = x->keys[j + 1];
   }
 
   x->n--;
@@ -174,19 +185,18 @@ void BTree::remove_leaf_key(Node *x, int i) {
 // remove the key at index i and child at index j from a btree internal node x
 void BTree::remove_internal_key(Node *x, int i, int j) {
 
-  for(int m = i; m < x->n - 1; m++){
+  for (int m = i; m < x->n - 1; m++) {
     x->keys[m] = x->keys[m + 1];
   }
   x->n--;
 
-  for(int k = j; k < x->n + 1; k++) {
-    x->c[k] = x->c[j+1];
+  for (int k = j; k < x->n + 1; k++) {
+    x->c[k] = x->c[j + 1];
   }
-
 }
 
 // return the max key in the btree rooted at node x
-int BTree::max_key(Node *x) { 
+int BTree::max_key(Node *x) {
   if (x == nullptr) {
     return DEFAULT_KEY;
   }
@@ -194,7 +204,7 @@ int BTree::max_key(Node *x) {
   if (x->leaf) {
     return x->keys[x->n - 1];
   } else {
-    int rightmost_child = t*2 - 1;
+    int rightmost_child = t * 2 - 1;
     while (x->c[rightmost_child] == nullptr) {
       rightmost_child--;
     }
@@ -233,34 +243,36 @@ int BTree::min_key(Node *x) {
 //  dividing_key: The key in `parent` that divides `left` and `right` t:
 //  The degree of the tree all nodes come from
 //=================================================
-void merge_nodes(Node* parent, Node* left, Node* right, size_t dividing_key, int t) {
+void merge_nodes(Node *parent, Node *left, Node *right, size_t dividing_key,
+                 int t) {
   assert(parent != nullptr);
   assert(left != nullptr);
   assert(right != nullptr);
   assert(left->n == t - 1);
   assert(right->n == t - 1);
 
-  left->keys[t-1] = parent->keys[dividing_key];
+  left->keys[t - 1] = parent->keys[dividing_key];
 
   // Move all the keys in right to left
   for (int i = t; i < 2 * t - 1; i++) {
     left->keys[i] = right->keys[i - t];
   }
 
-  // The merged node will have (t - 1) [left side] plus (t - 1) [right side] plus (1) [key from x] nodes which equal 2t - 1
+  // The merged node will have (t - 1) [left side] plus (t - 1) [right side]
+  // plus (1) [key from x] nodes which equal 2t - 1
   left->n = 2 * t - 1;
 
   // Now lets cleanup the children arrays
 
   // Take all the children from right and put it into left
-  for (int i = t; i < 2*t; i++) {
+  for (int i = t; i < 2 * t; i++) {
     left->c[i] = right->c[i - t];
   }
 
   // Remove a child from parent
   parent->n--;
-  for (int i = dividing_key+1; i < parent->n+1; i++) {
-    parent->c[i] = parent->c[i+1];
+  for (int i = dividing_key + 1; i < parent->n + 1; i++) {
+    parent->c[i] = parent->c[i + 1];
   }
 
   delete right;
@@ -273,15 +285,15 @@ void BTree::merge_left(Node *x, Node *y, int k) {
   assert(x->n == t - 1);
   assert(y->n == t - 1);
 
-  x->keys[t-1] = k;
-  
-  x->n = 2*t - 1;
-  for(int m = t; m < 2*t - 1; m++) {
-    x->keys[m] = y->keys[m-t];
+  x->keys[t - 1] = k;
+
+  x->n = 2 * t - 1;
+  for (int m = t; m < 2 * t - 1; m++) {
+    x->keys[m] = y->keys[m - t];
   }
-  
-  for(int m = t; m < 2*t; m++) {
-    x->c[m] = y->c[m-t];
+
+  for (int m = t; m < 2 * t; m++) {
+    x->c[m] = y->c[m - t];
   }
 
   delete y;
@@ -295,7 +307,7 @@ void BTree::merge_right(Node *x, Node *y, int k) {
   assert(y->n == t - 1);
 
   // Shift all keys currently in x to the right side
-  for(int i = 0; i < t - 1; i++) {
+  for (int i = 0; i < t - 1; i++) {
     x->keys[i + t] = x->keys[i];
   }
 
@@ -305,10 +317,10 @@ void BTree::merge_right(Node *x, Node *y, int k) {
   }
 
   // The key between the left side values and right side values will be k
-  x->keys[t-1] = k;
+  x->keys[t - 1] = k;
 
   // Update the number of keys in x
-  x->n = 2*t - 1;
+  x->n = 2 * t - 1;
 
   // Time to adjust children,
 
@@ -334,7 +346,7 @@ void BTree::swap_left(Node *x, Node *y, Node *z, int i) {
   assert(y != nullptr);
   assert(z != nullptr);
 
-  bool y_is_not_full = y->n <= (2*t - 1);
+  bool y_is_not_full = y->n <= (2 * t - 1);
   assert(y_is_not_full);
 
   bool z_is_left_sibling_of_y = x->c[i] == z && x->c[i + 1] == y;
@@ -344,13 +356,13 @@ void BTree::swap_left(Node *x, Node *y, Node *z, int i) {
   // pushing all keys of `y` up 1. Giving a free spot at the front.
   y->n++;
   for (int i = y->n - 1; i > 0; i--) {
-    y->keys[i] = y->keys[i-1];
+    y->keys[i] = y->keys[i - 1];
   }
 
   // Let's not forget to push `y`'s children up too, giving a free spot to put
   // in `z`'s old rightmost child after `z` loses a key.
   for (int i = y->n; i > 0; i--) {
-    y->c[i] = y->c[i-1];
+    y->c[i] = y->c[i - 1];
   }
 
   // Let's add a key to `y` by taking the dividing key and putting it in the
@@ -359,7 +371,7 @@ void BTree::swap_left(Node *x, Node *y, Node *z, int i) {
   y->keys[0] = x->keys[i];
 
   // Replace the dividing key with the last key of the left sibling.
-  x->keys[i] = z->keys[z->n-1];
+  x->keys[i] = z->keys[z->n - 1];
 
   // Let's move a child from `z` to `y` as `z` lost a child when losing a key
   // and `y` has an extra child spot from gaining a key
@@ -376,7 +388,7 @@ void BTree::swap_right(Node *x, Node *y, Node *z, int i) {
   assert(y != nullptr);
   assert(z != nullptr);
 
-  bool y_is_not_full = y->n <= (2*t - 1);
+  bool y_is_not_full = y->n <= (2 * t - 1);
   assert(y_is_not_full);
 
   bool z_is_right_sibling_of_y = x->c[i] == y && x->c[i + 1] == z;
@@ -384,7 +396,7 @@ void BTree::swap_right(Node *x, Node *y, Node *z, int i) {
 
   // Add a new key to `y`, taking the key at the dividing index.
   y->n++;
-  y->keys[y->n-1] = x->keys[i];
+  y->keys[y->n - 1] = x->keys[i];
 
   // The key at the dividing index is replaced by the first key in the right
   // sibling. At this point, The original key `x->keys[i]` has been fully moved
@@ -401,10 +413,10 @@ void BTree::swap_right(Node *x, Node *y, Node *z, int i) {
   // beginning because `z` is losing its first key.
   z->n--;
   for (int i = 0; i < z->n; i++) {
-    z->keys[i] = z->keys[i+1];
+    z->keys[i] = z->keys[i + 1];
   }
 
   for (int i = 0; i < z->n + 1; i++) {
-    z->c[i] = z->c[i+1];
+    z->c[i] = z->c[i + 1];
   }
 }

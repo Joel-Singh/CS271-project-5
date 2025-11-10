@@ -1,6 +1,6 @@
-#include <iostream>
 #include "btree.h"
 #include "btree_helper_functions.cpp"
+#include <iostream>
 
 using namespace std;
 
@@ -30,7 +30,7 @@ template <typename T> static string stringify(T &value) {
     } else {
       return std::string(1, value);
     }
-  } else if constexpr (std::is_same_v<T, const char* const>) {
+  } else if constexpr (std::is_same_v<T, const char *const>) {
     // Case where T is a literal string
     return std::string(value);
   } else if constexpr (std::is_arithmetic_v<T>) {
