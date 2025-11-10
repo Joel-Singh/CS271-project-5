@@ -21,8 +21,6 @@ BTree::BTree(const std::string &filename) : root(nullptr), t(0) {
   }
 }
 
-BTree::BTree() : root(nullptr), t(0) {}
-
 //=================================================
 // recursive_destructor
 // Recursively deletes all nodes in the bst, traversing through all and then deleting in reverse order
